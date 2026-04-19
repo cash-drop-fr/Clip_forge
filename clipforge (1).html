@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClipForge — Créez des vidéos virales gratuitement</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080a0f;
+    --surface: #0d1017;
+    --card: #111520;
+    --card2: #161b28;
+    --border: rgba(255,255,255,0.07);
+    --accent: #00f5a0;
+    --accent2: #00c3ff;
+    --accent3: #ff6b35;
+    --text: #e8eaf0;
+    --muted: #5a6070;
+    --white: #ffffff;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Custom cursor */
+  .cursor {
+    width: 10px; height: 10px;
+    background: var(--accent);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.1s ease;
+    mix-blend-mode: screen;
+  }
+  .cursor-ring {
+    width: 36px; height: 36px;
+    border: 1.5px solid var(--accent);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9998;
+    transition: left 0.12s ease, top 0.12s ease, transform 0.3s ease;
+    opacity: 0.5;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,245,160,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,245,160,0.025) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 18px 5%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(8,10,15,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    letter-spacing: 3px;
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .logo span {
+    color: var(--accent);
+  }
+  .logo-dot {
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.7); }
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 32px;
+    list-style: none;
+  }
+  .nav-links a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--text); }
+
+  .nav-cta {
+    background: var(--accent);
+    color: #000 !important;
+    padding: 8px 20px;
+    border-radius: 6px;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+    letter-spacing: 0.5px;
+    transition: all 0.2s !important;
+  }
+  .nav-cta:hover {
+    background: #00ffaa !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px rgba(0,245,160,0.4);
+  }
+
+  /* HERO */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 120px 5% 80px;
+    text-align: center;
+    overflow: hidden;
+  }
+
+  .hero-glow {
+    position: absolute;
+    top: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 900px;
+    height: 600px;
+    background: radial-gradient(ellipse, rgba(0,245,160,0.08) 0%, rgba(0,195,255,0.04) 40%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0,245,160,0.08);
+    border: 1px solid rgba(0,245,160,0.2);
+    border-radius: 100px;
+    padding: 6px 16px;
+    margin-bottom: 32px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--accent);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    animation: fadeDown 0.6s ease both;
+  }
+  .badge-dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; animation: pulse 2s ease-in-out infinite; }
+
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(64px, 10vw, 140px);
+    line-height: 0.9;
+    letter-spacing: 2px;
+    color: var(--white);
+    margin-bottom: 12px;
+    animation: fadeUp 0.7s 0.1s ease both;
+  }
+
+  .hero-title .highlight {
+    -webkit-text-fill-color: transparent;
+    -webkit-text-stroke: 2px var(--accent);
+    color: transparent;
+  }
+
+  .hero-title .fill {
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero-sub {
+    font-size: 18px;
+    line-height: 1.6;
+    color: var(--muted);
+    max-width: 560px;
+    margin: 24px auto 40px;
+    font-weight: 300;
+    animation: fadeUp 0.7s 0.2s ease both;
+  }
+
+  .hero-sub strong { color: var(--text); font-weight: 500; }
+
+  .hero-actions {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    flex-wrap: wrap;
+    animation: fadeUp 0.7s 0.3s ease both;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #000;
+    padding: 14px 32px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 15px;
+    text-decoration: none;
+    letter-spacing: 0.5px;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-primary::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.3) 50%, transparent 70%);
+    transform: translateX(-100%);
+    transition: transform 0.5s;
+  }
+  .btn-primary:hover::after { transform: translateX(100%); }
+  .btn-primary:hover {
+    background: #00ffaa;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0,245,160,0.5);
+  }
+
+  .btn-ghost {
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 14px 32px;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 15px;
+    text-decoration: none;
+    transition: all 0.25s;
+    background: rgba(255,255,255,0.03);
+  }
+  .btn-ghost:hover {
+    border-color: rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.07);
+    transform: translateY(-2px);
+  }
+
+  .free-badge {
+    margin-top: 24px;
+    font-size: 13px;
+    color: var(--muted);
+    animation: fadeUp 0.7s 0.4s ease both;
+  }
+  .free-badge span { color: var(--accent); font-weight: 600; }
+
+  /* STATS BAR */
+  .stats-bar {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    margin: 60px 5% 0;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--surface);
+    animation: fadeUp 0.7s 0.5s ease both;
+  }
+
+  .stat-item {
+    flex: 1;
+    padding: 28px 24px;
+    text-align: center;
+    border-right: 1px solid var(--border);
+    position: relative;
+  }
+  .stat-item:last-child { border-right: none; }
+
+  .stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 42px;
+    letter-spacing: 2px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* SECTION STYLES */
+  section { position: relative; z-index: 1; }
+
+  .section-tag {
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(40px, 5vw, 72px);
+    line-height: 1;
+    color: var(--white);
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+
+  .section-desc {
+    font-size: 16px;
+    color: var(--muted);
+    max-width: 520px;
+    line-height: 1.7;
+    font-weight: 300;
+  }
+
+  /* HOW IT WORKS */
+  .how {
+    padding: 120px 5%;
+    max-width: 1300px;
+    margin: 0 auto;
+  }
+
+  .how-header { margin-bottom: 64px; }
+
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+    background: var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .step-card {
+    background: var(--card);
+    padding: 36px 28px;
+    position: relative;
+    transition: background 0.3s;
+  }
+  .step-card:hover { background: var(--card2); }
+
+  .step-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 72px;
+    line-height: 1;
+    color: rgba(0,245,160,0.06);
+    position: absolute;
+    top: 16px;
+    right: 20px;
+  }
+
+  .step-icon {
+    font-size: 28px;
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .step-title {
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--white);
+    margin-bottom: 10px;
+  }
+
+  .step-desc {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  .step-connector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    font-size: 20px;
+    opacity: 0.4;
+  }
+
+  /* FEATURES BIG */
+  .features {
+    padding: 80px 5%;
+    max-width: 1300px;
+    margin: 0 auto;
+  }
+
+  .features-header {
+    text-align: center;
+    margin-bottom: 72px;
+  }
+
+  .features-header .section-desc {
+    margin: 0 auto;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  .feat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 40px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+    cursor: none;
+  }
+  .feat-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(0,245,160,0.05) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+  .feat-card:hover::before { opacity: 1; }
+  .feat-card:hover {
+    border-color: rgba(0,245,160,0.15);
+    transform: translateY(-4px);
+  }
+
+  .feat-card.large { grid-column: span 2; }
+  .feat-card.accent-card { background: linear-gradient(135deg, rgba(0,245,160,0.07), rgba(0,195,255,0.03)); }
+
+  .feat-icon-wrap {
+    width: 52px; height: 52px;
+    background: rgba(0,245,160,0.1);
+    border: 1px solid rgba(0,245,160,0.2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    margin-bottom: 24px;
+  }
+
+  .feat-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 12px;
+  }
+
+  .feat-desc {
+    font-size: 15px;
+    color: var(--muted);
+    line-height: 1.7;
+    font-weight: 300;
+    max-width: 460px;
+  }
+
+  .feat-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 24px;
+  }
+
+  .feat-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 100px;
+    background: rgba(0,245,160,0.08);
+    color: var(--accent);
+    border: 1px solid rgba(0,245,160,0.15);
+    letter-spacing: 0.5px;
+  }
+
+  .feat-tag.blue {
+    background: rgba(0,195,255,0.08);
+    color: var(--accent2);
+    border-color: rgba(0,195,255,0.15);
+  }
+  .feat-tag.orange {
+    background: rgba(255,107,53,0.08);
+    color: var(--accent3);
+    border-color: rgba(255,107,53,0.15);
+  }
+
+  /* VOICES */
+  .voices {
+    padding: 80px 5%;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .voices-header { text-align: center; margin-bottom: 56px; }
+
+  .voices-track {
+    display: flex;
+    gap: 16px;
+    animation: scroll 30s linear infinite;
+    width: max-content;
+  }
+
+  .voices-track:hover { animation-play-state: paused; }
+
+  @keyframes scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  .voice-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px 24px;
+    min-width: 180px;
+    transition: all 0.3s;
+    cursor: none;
+  }
+  .voice-card:hover {
+    border-color: rgba(0,245,160,0.2);
+    background: var(--card2);
+  }
+
+  .voice-emoji { font-size: 28px; margin-bottom: 10px; display: block; }
+
+  .voice-name {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--white);
+    margin-bottom: 4px;
+  }
+
+  .voice-role {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 300;
+  }
+
+  .voice-bar {
+    margin-top: 14px;
+    height: 3px;
+    background: var(--border);
+    border-radius: 100px;
+    overflow: hidden;
+  }
+  .voice-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 100px;
+    animation: barPulse 2s ease-in-out infinite;
+  }
+  @keyframes barPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* VS TABLE */
+  .vs {
+    padding: 80px 5%;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .vs-header { text-align: center; margin-bottom: 56px; }
+
+  .vs-table {
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .vs-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    border-bottom: 1px solid var(--border);
+  }
+  .vs-row:last-child { border-bottom: none; }
+
+  .vs-cell {
+    padding: 18px 24px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    border-right: 1px solid var(--border);
+  }
+  .vs-cell:last-child { border-right: none; }
+
+  .vs-row.header .vs-cell {
+    background: var(--card2);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    padding: 14px 24px;
+  }
+
+  .vs-row:not(.header) .vs-cell:nth-child(1) {
+    color: var(--muted);
+    background: var(--card);
+  }
+  .vs-row:not(.header) .vs-cell:nth-child(2) {
+    background: rgba(255,107,53,0.03);
+    color: var(--muted);
+  }
+  .vs-row:not(.header) .vs-cell:nth-child(3) {
+    background: rgba(0,245,160,0.04);
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .check { color: var(--accent); font-size: 16px; margin-right: 8px; }
+  .cross { color: var(--accent3); margin-right: 8px; }
+  .vs-name-clipeo { color: var(--accent3); font-weight: 700; font-family: 'Space Mono', monospace; font-size: 13px; }
+  .vs-name-forge { color: var(--accent); font-weight: 700; font-family: 'Space Mono', monospace; font-size: 13px; }
+
+  /* PRICING */
+  .pricing {
+    padding: 80px 5%;
+    max-width: 1300px;
+    margin: 0 auto;
+  }
+
+  .pricing-header { text-align: center; margin-bottom: 64px; }
+
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .price-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 36px;
+    position: relative;
+    transition: all 0.3s;
+  }
+  .price-card:hover { transform: translateY(-4px); }
+
+  .price-card.featured {
+    background: linear-gradient(135deg, rgba(0,245,160,0.06), rgba(0,195,255,0.03));
+    border-color: rgba(0,245,160,0.25);
+  }
+
+  .price-badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--accent);
+    color: #000;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 16px;
+    border-radius: 100px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .plan-name {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+
+  .plan-price {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 64px;
+    letter-spacing: 2px;
+    line-height: 1;
+    color: var(--white);
+    margin-bottom: 4px;
+  }
+
+  .plan-price .currency {
+    font-size: 28px;
+    vertical-align: super;
+    color: var(--muted);
+    margin-right: 2px;
+  }
+
+  .plan-period {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 28px;
+  }
+
+  .plan-features {
+    list-style: none;
+    margin-bottom: 32px;
+  }
+
+  .plan-features li {
+    font-size: 14px;
+    color: var(--muted);
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 300;
+  }
+  .plan-features li:last-child { border-bottom: none; }
+
+  .plan-features li::before {
+    content: '✓';
+    color: var(--accent);
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .plan-btn {
+    display: block;
+    text-align: center;
+    padding: 12px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 14px;
+    text-decoration: none;
+    letter-spacing: 0.5px;
+    transition: all 0.25s;
+  }
+  .plan-btn.outline {
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+  .plan-btn.outline:hover { border-color: var(--accent); color: var(--accent); }
+  .plan-btn.filled {
+    background: var(--accent);
+    color: #000;
+  }
+  .plan-btn.filled:hover {
+    background: #00ffaa;
+    box-shadow: 0 6px 24px rgba(0,245,160,0.4);
+  }
+
+  /* FAQ */
+  .faq {
+    padding: 80px 5%;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .faq-header { text-align: center; margin-bottom: 56px; }
+
+  .faq-item {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .faq-q {
+    width: 100%;
+    background: none;
+    border: none;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    padding: 20px 0;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: none;
+    gap: 16px;
+  }
+
+  .faq-arrow {
+    color: var(--accent);
+    font-size: 18px;
+    transition: transform 0.3s;
+    flex-shrink: 0;
+  }
+
+  .faq-item.open .faq-arrow { transform: rotate(45deg); }
+
+  .faq-a {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.7;
+    font-weight: 300;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, padding-bottom 0.3s;
+  }
+  .faq-item.open .faq-a {
+    max-height: 200px;
+    padding-bottom: 20px;
+  }
+
+  /* CTA FINAL */
+  .cta-final {
+    padding: 120px 5%;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-final::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 800px; height: 400px;
+    background: radial-gradient(ellipse, rgba(0,245,160,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .cta-final .section-title { font-size: clamp(48px, 7vw, 96px); }
+
+  .cta-sub {
+    font-size: 17px;
+    color: var(--muted);
+    max-width: 480px;
+    margin: 16px auto 40px;
+    line-height: 1.7;
+    font-weight: 300;
+  }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 40px 5%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .footer-left {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 20px;
+    list-style: none;
+  }
+  .footer-links a {
+    font-size: 13px;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .footer-links a:hover { color: var(--text); }
+
+  .footer-copy {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+  }
+
+  /* MARQUEE TICKER */
+  .ticker {
+    background: var(--accent);
+    padding: 12px 0;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .ticker-track {
+    display: flex;
+    gap: 48px;
+    animation: ticker 20s linear infinite;
+    white-space: nowrap;
+  }
+
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  .ticker-item {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 14px;
+    letter-spacing: 2px;
+    color: #000;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .ticker-sep { opacity: 0.3; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: rgba(0,245,160,0.3); border-radius: 3px; }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .steps-grid { grid-template-columns: 1fr 1fr; }
+    .features-grid { grid-template-columns: 1fr; }
+    .feat-card.large { grid-column: span 1; }
+    .pricing-grid { grid-template-columns: 1fr; }
+    .stats-bar { flex-direction: column; }
+    .stat-item { border-right: none; border-bottom: 1px solid var(--border); }
+    .stat-item:last-child { border-bottom: none; }
+    .nav-links { display: none; }
+    .vs-row { grid-template-columns: 1fr 1fr 1fr; }
+  }
+
+  @media (max-width: 600px) {
+    .steps-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">
+    <div class="logo-dot"></div>
+    CLIP<span>FORGE</span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#features">Fonctionnalités</a></li>
+    <li><a href="#vs">Comparaison</a></li>
+    <li><a href="#pricing">Tarifs</a></li>
+    <li><a href="#faq">FAQ</a></li>
+    <li><a href="#" class="nav-cta">Commencer — Gratuit</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-glow"></div>
+
+  <div class="badge">
+    <span class="badge-dot"></span>
+    100% Gratuit — Illimité — Sans watermark
+  </div>
+
+  <h1 class="hero-title">
+    CRÉEZ DES<br>
+    <span class="fill">CLIPS VIRAUX</span><br>
+    <span class="highlight">EN 30 SEC.</span>
+  </h1>
+
+  <p class="hero-sub">
+    <strong>Clipeo fait payer. ClipForge non.</strong><br>
+    Générateur vidéo IA, extraction YouTube, voix naturelles, sous-titres cinématiques — tout ça, sans limite et sans abonnement.
+  </p>
+
+  <div class="hero-actions">
+    <a href="#" class="btn-primary">⚡ Créer ma première vidéo</a>
+    <a href="#features" class="btn-ghost">Voir les fonctionnalités →</a>
+  </div>
+
+  <p class="free-badge"><span>✓ Gratuit pour toujours</span> — Pas de carte bancaire requise — Pas de watermark</p>
+</section>
+
+<!-- STATS BAR -->
+<div class="stats-bar" style="position:relative;z-index:1;">
+  <div class="stat-item">
+    <div class="stat-num">0€</div>
+    <div class="stat-label">Pour toujours</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">∞</div>
+    <div class="stat-label">Vidéos par mois</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">24</div>
+    <div class="stat-label">Voix IA disponibles</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">4K</div>
+    <div class="stat-label">Export maximum</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">8</div>
+    <div class="stat-label">Formats de sortie</div>
+  </div>
+</div>
+
+<!-- TICKER -->
+<div class="ticker" style="margin-top:0;position:relative;z-index:1;">
+  <div class="ticker-track">
+    <span class="ticker-item">GRATUIT <span class="ticker-sep">✦</span></span>
+    <span class="ticker-item">SANS WATERMARK <span class="ticker-sep">✦</span></span>
+    <span class="ticker-item">ILLIMITÉ <span class="ticker-sep">✦</span></span>
+    <span class="ticker-item">VIDÉO IA <span class="ticker-sep">✦</span></span>
+    <span class="ticker-item">YOUTUBE → CLIPS <span class="ticker-sep">✦</span></span>
+    <span class="ticker-item">24 VOIX <span class="ticker-sep">✦</span></span>
+    <span class="ticker-item">EXPORT 4K <span class="ticker-sep">✦</span></span>
+    <span class="ticker-item">OPEN SOURCE <span class="ticker-sep">✦</span></span>
+    <span class="ticker-item">GRATUIT <span class="ticker-sep">✦</span></span>
+    <span class="ticker-item">SANS WATERMARK <span class="ticker-sep">✦</span></span>
+    <span class="ticker-item">ILLIMITÉ <span class="ticker-sep">✦</span></span>
+    <span class="ticker-item">VIDÉO IA <span class="ticker-sep">✦</span></span>
+    <span class="ticker-item">YOUTUBE → CLIPS <span class="ticker-sep">✦</span></span>
+    <span class="ticker-item">24 VOIX <span class="ticker-sep">✦</span></span>
+    <span class="ticker-item">EXPORT 4K <span class="ticker-sep">✦</span></span>
+    <span class="ticker-item">OPEN SOURCE <span class="ticker-sep">✦</span></span>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div class="how">
+  <div class="how-header">
+    <span class="section-tag">// Workflow</span>
+    <h2 class="section-title">4 ÉTAPES,<br>1 CLIP VIRAL</h2>
+    <p class="section-desc">De l'idée à la vidéo prête à poster en moins de 60 secondes.</p>
+  </div>
+
+  <div class="steps-grid">
+    <div class="step-card">
+      <span class="step-num">01</span>
+      <span class="step-icon">✍️</span>
+      <div class="step-title">Écris ton script</div>
+      <p class="step-desc">Tape ton idée ou laisse l'IA te générer un script optimisé pour TikTok, Shorts ou Reels.</p>
+    </div>
+    <div class="step-card">
+      <span class="step-num">02</span>
+      <span class="step-icon">🎨</span>
+      <div class="step-title">Choisis ton style</div>
+      <p class="step-desc">Sélectionne parmi 30+ templates visuels : brainrot, cinématique, minimaliste, gaming, news...</p>
+    </div>
+    <div class="step-card">
+      <span class="step-num">03</span>
+      <span class="step-icon">🎙️</span>
+      <div class="step-title">Sélectionne une voix</div>
+      <p class="step-desc">24 voix IA naturelles en 10+ langues. Ajuste le débit, le pitch et le style d'élocution.</p>
+    </div>
+    <div class="step-card">
+      <span class="step-num">04</span>
+      <span class="step-icon">🚀</span>
+      <div class="step-title">Exporte & Poste</div>
+      <p class="step-desc">Télécharge en 4K sans watermark. Planifie la publication directement sur TikTok & YouTube.</p>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="features-header">
+    <span class="section-tag">// Ce que tu obtiens</span>
+    <h2 class="section-title">TOUT CE DONT TU<br>AS BESOIN</h2>
+    <p class="section-desc">Des fonctionnalités que Clipeo te facture 29€/mois. Ici, tout est gratuit.</p>
+  </div>
+
+  <div class="features-grid">
+
+    <div class="feat-card accent-card" onmousemove="cardEffect(this, event)">
+      <div class="feat-icon-wrap">🎬</div>
+      <div class="feat-title">Générateur Text-to-Video IA</div>
+      <p class="feat-desc">Transforme n'importe quel texte en vidéo courte prête à poster. L'IA génère automatiquement les visuels, les transitions et la mise en scène selon ton script.</p>
+      <div class="feat-tags">
+        <span class="feat-tag">Script IA</span>
+        <span class="feat-tag">Auto-visuels</span>
+        <span class="feat-tag">30+ styles</span>
+      </div>
+    </div>
+
+    <div class="feat-card" onmousemove="cardEffect(this, event)">
+      <div class="feat-icon-wrap">📺</div>
+      <div class="feat-title">Extracteur YouTube → Clips</div>
+      <p class="feat-desc">Colle une URL YouTube, ClipForge identifie automatiquement les 10 meilleurs moments et les découpe en clips viraux optimisés.</p>
+      <div class="feat-tags">
+        <span class="feat-tag blue">Analyse IA</span>
+        <span class="feat-tag blue">Auto-découpage</span>
+        <span class="feat-tag blue">Multi-formats</span>
+      </div>
+    </div>
+
+    <div class="feat-card" onmousemove="cardEffect(this, event)">
+      <div class="feat-icon-wrap">🖼️</div>
+      <div class="feat-title">Image-to-Video animée</div>
+      <p class="feat-desc">Anime tes photos statiques avec des effets de parallaxe, zoom et motion naturels. Idéal pour les vidéos "before/after" et les visuels cinématiques.</p>
+      <div class="feat-tags">
+        <span class="feat-tag">Parallaxe</span>
+        <span class="feat-tag">Ken Burns</span>
+        <span class="feat-tag">Transitions</span>
+      </div>
+    </div>
+
+    <div class="feat-card" onmousemove="cardEffect(this, event)">
+      <div class="feat-icon-wrap">💬</div>
+      <div class="feat-title">Sous-titres Cinématiques</div>
+      <p class="feat-desc">Sous-titres auto-synchronisés avec 15 styles visuels différents. Mot par mot, couleurs personnalisées, animations, effets de surlignage façon MrBeast.</p>
+      <div class="feat-tags">
+        <span class="feat-tag orange">Mot par mot</span>
+        <span class="feat-tag orange">15 styles</span>
+        <span class="feat-tag orange">Animations</span>
+      </div>
+    </div>
+
+    <div class="feat-card large" onmousemove="cardEffect(this, event)">
+      <div style="display:flex;gap:40px;align-items:flex-start;flex-wrap:wrap;">
+        <div style="flex:1;min-width:280px;">
+          <div class="feat-icon-wrap">🔥</div>
+          <div class="feat-title">Planification & Publication Directe</div>
+          <p class="feat-desc">Connecte tes comptes TikTok, YouTube et Instagram. Planifie tes publications directement depuis ClipForge avec des horaires optimisés par l'IA selon ton audience.</p>
+        </div>
+        <div style="flex:1;min-width:280px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px;">
+            <div style="background:rgba(0,245,160,0.06);border:1px solid rgba(0,245,160,0.12);border-radius:12px;padding:16px;">
+              <div style="font-size:20px;margin-bottom:8px;">📊</div>
+              <div style="font-size:13px;font-weight:600;color:var(--white);margin-bottom:4px;">Analytics IA</div>
+              <div style="font-size:12px;color:var(--muted);">Prédiction de viralité avant publication</div>
+            </div>
+            <div style="background:rgba(0,195,255,0.06);border:1px solid rgba(0,195,255,0.12);border-radius:12px;padding:16px;">
+              <div style="font-size:20px;margin-bottom:8px;">🕐</div>
+              <div style="font-size:13px;font-weight:600;color:var(--white);margin-bottom:4px;">Meilleure heure</div>
+              <div style="font-size:12px;color:var(--muted);">Horaires optimisés pour ta niche</div>
+            </div>
+            <div style="background:rgba(255,107,53,0.06);border:1px solid rgba(255,107,53,0.12);border-radius:12px;padding:16px;">
+              <div style="font-size:20px;margin-bottom:8px;">🏷️</div>
+              <div style="font-size:13px;font-weight:600;color:var(--white);margin-bottom:4px;">Hashtags IA</div>
+              <div style="font-size:12px;color:var(--muted);">Générés automatiquement par niche</div>
+            </div>
+            <div style="background:rgba(0,245,160,0.06);border:1px solid rgba(0,245,160,0.12);border-radius:12px;padding:16px;">
+              <div style="font-size:20px;margin-bottom:8px;">🔁</div>
+              <div style="font-size:13px;font-weight:600;color:var(--white);margin-bottom:4px;">Reposter auto</div>
+              <div style="font-size:12px;color:var(--muted);">Recycle tes meilleurs clips</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- VOICES -->
+<section class="voices">
+  <div class="voices-header">
+    <span class="section-tag">// Voix IA</span>
+    <h2 class="section-title">24 VOIX<br>ULTRA-RÉALISTES</h2>
+    <p class="section-desc" style="margin:0 auto;">Des voix en français, anglais, espagnol, arabe et 7 autres langues. Contrôle total sur le débit, le ton et les émotions.</p>
+  </div>
+
+  <div style="overflow:hidden;">
+    <div class="voices-track" id="voicesTrack">
+      <!-- Repeated twice for infinite loop -->
+      <div class="voice-card"><span class="voice-emoji">👨</span><div class="voice-name">Lucas</div><div class="voice-role">Narrateur naturel · FR</div><div class="voice-bar"><div class="voice-bar-fill" style="width:90%"></div></div></div>
+      <div class="voice-card"><span class="voice-emoji">👩</span><div class="voice-name">Sophia</div><div class="voice-role">Dynamique · EN</div><div class="voice-bar"><div class="voice-bar-fill" style="width:75%"></div></div></div>
+      <div class="voice-card"><span class="voice-emoji">👨</span><div class="voice-name">Marco</div><div class="voice-role">Autoritaire · IT</div><div class="voice-bar"><div class="voice-bar-fill" style="width:85%"></div></div></div>
+      <div class="voice-card"><span class="voice-emoji">👩</span><div class="voice-name">Aisha</div><div class="voice-role">Douce · AR</div><div class="voice-bar"><div class="voice-bar-fill" style="width:70%"></div></div></div>
+      <div class="voice-card"><span class="voice-emoji">👨</span><div class="voice-name">Alex</div><div class="voice-role">Énergique · EN</div><div class="voice-bar"><div class="voice-bar-fill" style="width:88%"></div></div></div>
+      <div class="voice-card"><span class="voice-emoji">👩</span><div class="voice-name">Camille</div><div class="voice-role">Confiante · FR</div><div class="voice-bar"><div class="voice-bar-fill" style="width:82%"></div></div></div>
+      <div class="voice-card"><span class="voice-emoji">👨</span><div class="voice-name">Carlos</div><div class="voice-role">Promotionnel · ES</div><div class="voice-bar"><div class="voice-bar-fill" style="width:78%"></div></div></div>
+      <div class="voice-card"><span class="voice-emoji">👩</span><div class="voice-name">Nina</div><div class="voice-role">Apaisante · DE</div><div class="voice-bar"><div class="voice-bar-fill" style="width:72%"></div></div></div>
+      <!-- Duplicate -->
+      <div class="voice-card"><span class="voice-emoji">👨</span><div class="voice-name">Lucas</div><div class="voice-role">Narrateur naturel · FR</div><div class="voice-bar"><div class="voice-bar-fill" style="width:90%"></div></div></div>
+      <div class="voice-card"><span class="voice-emoji">👩</span><div class="voice-name">Sophia</div><div class="voice-role">Dynamique · EN</div><div class="voice-bar"><div class="voice-bar-fill" style="width:75%"></div></div></div>
+      <div class="voice-card"><span class="voice-emoji">👨</span><div class="voice-name">Marco</div><div class="voice-role">Autoritaire · IT</div><div class="voice-bar"><div class="voice-bar-fill" style="width:85%"></div></div></div>
+      <div class="voice-card"><span class="voice-emoji">👩</span><div class="voice-name">Aisha</div><div class="voice-role">Douce · AR</div><div class="voice-bar"><div class="voice-bar-fill" style="width:70%"></div></div></div>
+      <div class="voice-card"><span class="voice-emoji">👨</span><div class="voice-name">Alex</div><div class="voice-role">Énergique · EN</div><div class="voice-bar"><div class="voice-bar-fill" style="width:88%"></div></div></div>
+      <div class="voice-card"><span class="voice-emoji">👩</span><div class="voice-name">Camille</div><div class="voice-role">Confiante · FR</div><div class="voice-bar"><div class="voice-bar-fill" style="width:82%"></div></div></div>
+      <div class="voice-card"><span class="voice-emoji">👨</span><div class="voice-name">Carlos</div><div class="voice-role">Promotionnel · ES</div><div class="voice-bar"><div class="voice-bar-fill" style="width:78%"></div></div></div>
+      <div class="voice-card"><span class="voice-emoji">👩</span><div class="voice-name">Nina</div><div class="voice-role">Apaisante · DE</div><div class="voice-bar"><div class="voice-bar-fill" style="width:72%"></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- VS TABLE -->
+<section class="vs" id="vs">
+  <div class="vs-header">
+    <span class="section-tag">// Comparaison</span>
+    <h2 class="section-title">CLIPEO VS<br>CLIPFORGE</h2>
+    <p class="section-desc" style="margin:0 auto;">Pourquoi payer quand on peut faire mieux gratuitement ?</p>
+  </div>
+
+  <div class="vs-table">
+    <div class="vs-row header">
+      <div class="vs-cell">Fonctionnalité</div>
+      <div class="vs-cell"><span class="vs-name-clipeo">Clipeo</span></div>
+      <div class="vs-cell"><span class="vs-name-forge">ClipForge</span></div>
+    </div>
+    <div class="vs-row">
+      <div class="vs-cell">Prix de base</div>
+      <div class="vs-cell"><span class="cross">✗</span> 9€/mois</div>
+      <div class="vs-cell"><span class="check">✓</span> 0€ pour toujours</div>
+    </div>
+    <div class="vs-row">
+      <div class="vs-cell">Watermark</div>
+      <div class="vs-cell"><span class="cross">✗</span> Oui (plan gratuit)</div>
+      <div class="vs-cell"><span class="check">✓</span> Jamais</div>
+    </div>
+    <div class="vs-row">
+      <div class="vs-cell">Vidéos par mois</div>
+      <div class="vs-cell"><span class="cross">✗</span> Limité (tokens)</div>
+      <div class="vs-cell"><span class="check">✓</span> Illimité</div>
+    </div>
+    <div class="vs-row">
+      <div class="vs-cell">Voix disponibles</div>
+      <div class="vs-cell"><span class="cross">✗</span> 8 voix</div>
+      <div class="vs-cell"><span class="check">✓</span> 24 voix</div>
+    </div>
+    <div class="vs-row">
+      <div class="vs-cell">Export 4K</div>
+      <div class="vs-cell"><span class="cross">✗</span> Plan Premium</div>
+      <div class="vs-cell"><span class="check">✓</span> Inclus gratuit</div>
+    </div>
+    <div class="vs-row">
+      <div class="vs-cell">Planification sociale</div>
+      <div class="vs-cell"><span class="cross">✗</span> Non disponible</div>
+      <div class="vs-cell"><span class="check">✓</span> TikTok + YT + IG</div>
+    </div>
+    <div class="vs-row">
+      <div class="vs-cell">Analytics de viralité</div>
+      <div class="vs-cell"><span class="cross">✗</span> Non disponible</div>
+      <div class="vs-cell"><span class="check">✓</span> Score IA inclus</div>
+    </div>
+    <div class="vs-row">
+      <div class="vs-cell">Open Source</div>
+      <div class="vs-cell"><span class="cross">✗</span> Code propriétaire</div>
+      <div class="vs-cell"><span class="check">✓</span> GitHub public</div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <div class="pricing-header">
+    <span class="section-tag">// Tarifs</span>
+    <h2 class="section-title">SIMPLE.<br>GRATUIT.</h2>
+    <p class="section-desc" style="margin:0 auto;">Tout le monde mérite des outils de création professionnels sans payer.</p>
+  </div>
+
+  <div class="pricing-grid">
+
+    <div class="price-card">
+      <div class="plan-name">Starter</div>
+      <div class="plan-price"><span class="currency">€</span>0</div>
+      <div class="plan-period">Pour toujours</div>
+      <ul class="plan-features">
+        <li>Vidéos illimitées</li>
+        <li>Sans watermark</li>
+        <li>8 voix IA</li>
+        <li>Export Full HD (1080p)</li>
+        <li>Extracteur YouTube</li>
+        <li>Sous-titres auto</li>
+        <li>10 templates</li>
+      </ul>
+      <a href="#" class="plan-btn outline">Commencer gratuit</a>
+    </div>
+
+    <div class="price-card featured">
+      <div class="price-badge">POPULAIRE</div>
+      <div class="plan-name">Creator</div>
+      <div class="plan-price"><span class="currency">€</span>0</div>
+      <div class="plan-period">Oui, toujours gratuit</div>
+      <ul class="plan-features">
+        <li>Tout du plan Starter</li>
+        <li>24 voix IA + 10 langues</li>
+        <li>Export 4K Ultra HD</li>
+        <li>Planification réseaux sociaux</li>
+        <li>Analytics de viralité IA</li>
+        <li>30+ templates premium</li>
+        <li>Génération de hashtags IA</li>
+        <li>Image-to-Video animée</li>
+      </ul>
+      <a href="#" class="plan-btn filled">Créer mon compte</a>
+    </div>
+
+    <div class="price-card">
+      <div class="plan-name">Pro</div>
+      <div class="plan-price"><span class="currency">€</span>0</div>
+      <div class="plan-period">Encore gratuit, oui</div>
+      <ul class="plan-features">
+        <li>Tout du plan Creator</li>
+        <li>API accès complet</li>
+        <li>Batch processing (50 vidéos)</li>
+        <li>Custom branding</li>
+        <li>Suppression fond IA</li>
+        <li>Collaboration équipe</li>
+        <li>Support prioritaire Discord</li>
+        <li>Accès bêta nouvelles fonctions</li>
+      </ul>
+      <a href="#" class="plan-btn outline">Rejoindre la liste</a>
+    </div>
+
+  </div>
+
+  <p style="text-align:center;margin-top:32px;font-size:13px;color:var(--muted);font-family:'Space Mono',monospace;">
+    Monétisé via des modèles open-source et des dons. Pas d'investisseurs. Pas de bullshit.
+  </p>
+</section>
+
+<!-- FAQ -->
+<section class="faq" id="faq">
+  <div class="faq-header">
+    <span class="section-tag">// FAQ</span>
+    <h2 class="section-title">TES QUESTIONS,<br>NOS RÉPONSES</h2>
+  </div>
+
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <button class="faq-q">C'est vraiment gratuit ? <span class="faq-arrow">+</span></button>
+    <div class="faq-a">Oui, à 100%. ClipForge est financé par des modèles open-source et des contributions de la communauté. Aucune carte bancaire requise, aucun accès limité caché. Ce qu'on promet, on le tient.</div>
+  </div>
+
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <button class="faq-q">Il y a un watermark sur les vidéos ? <span class="faq-arrow">+</span></button>
+    <div class="faq-a">Jamais. Tes vidéos t'appartiennent à 100%. Pas de logo ClipForge, pas de mention cachée, pas de watermark en plan gratuit. C'est notre engagement fondateur.</div>
+  </div>
+
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <button class="faq-q">Puis-je monétiser les vidéos créées ? <span class="faq-arrow">+</span></button>
+    <div class="faq-a">Oui, complètement. Les vidéos générées sont libres de droits commerciaux. Tu peux les poster sur TikTok, YouTube, Instagram et monétiser avec des partenariats, AdSense, etc.</div>
+  </div>
+
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <button class="faq-q">Quelle est la qualité des voix IA ? <span class="faq-arrow">+</span></button>
+    <div class="faq-a">Nous utilisons les derniers modèles de synthèse vocale (Kokoro TTS, Bark, XTTS). Le résultat est extrêmement naturel, bien au-delà des voix robotiques d'ancienne génération. Tu peux tester gratuitement sans compte.</div>
+  </div>
+
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <button class="faq-q">Quelles plateformes sont supportées pour la publication ? <span class="faq-arrow">+</span></button>
+    <div class="faq-a">TikTok, YouTube Shorts, Instagram Reels, et Facebook Reels. La publication directe et la planification sont disponibles sur toutes ces plateformes depuis ton dashboard ClipForge.</div>
+  </div>
+
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <button class="faq-q">Comment ça se compare à Clipeo concrètement ? <span class="faq-arrow">+</span></button>
+    <div class="faq-a">Clipeo facture entre 9€ et 49€/mois avec des tokens limités et un watermark en plan gratuit. ClipForge offre plus de fonctionnalités (24 voix vs 8, export 4K, planification sociale, analytics IA) entièrement gratuitement, sans limite de vidéos.</div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta-final">
+  <span class="section-tag">// Rejoindre</span>
+  <h2 class="section-title">PRÊT À CRÉER<br>TES PREMIERS<br><span style="background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">CLIPS VIRAUX</span> ?</h2>
+  <p class="cta-sub">Rejoins des milliers de créateurs qui ont arrêté de payer pour des outils vidéo.</p>
+  <a href="#" class="btn-primary" style="font-size:17px;padding:16px 40px;">⚡ Commencer — C'est gratuit</a>
+  <p style="margin-top:20px;font-size:13px;color:var(--muted);">Aucune carte bancaire. Aucun watermark. Aucun bullshit.</p>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-left">
+    <div class="logo" style="font-size:18px;">CLIP<span>FORGE</span></div>
+    <ul class="footer-links">
+      <li><a href="#">Fonctionnalités</a></li>
+      <li><a href="#">GitHub</a></li>
+      <li><a href="#">Discord</a></li>
+      <li><a href="#">CGU</a></li>
+      <li><a href="#">Confidentialité</a></li>
+    </ul>
+  </div>
+  <div class="footer-copy">© 2026 ClipForge — Fait avec ❤️ pour les créateurs</div>
+</footer>
+
+<script>
+  // Custom cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let ringX = 0, ringY = 0;
+
+  document.addEventListener('mousemove', e => {
+    cursor.style.left = e.clientX - 5 + 'px';
+    cursor.style.top = e.clientY - 5 + 'px';
+    setTimeout(() => {
+      ring.style.left = e.clientX - 18 + 'px';
+      ring.style.top = e.clientY - 18 + 'px';
+    }, 50);
+  });
+
+  document.querySelectorAll('a, button, .feat-card, .voice-card').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cursor.style.transform = 'scale(2)';
+      ring.style.transform = 'scale(1.4)';
+      ring.style.opacity = '0.8';
+    });
+    el.addEventListener('mouseleave', () => {
+      cursor.style.transform = 'scale(1)';
+      ring.style.transform = 'scale(1)';
+      ring.style.opacity = '0.5';
+    });
+  });
+
+  // Card mouse effect
+  function cardEffect(card, e) {
+    const rect = card.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width * 100).toFixed(1);
+    const y = ((e.clientY - rect.top) / rect.height * 100).toFixed(1);
+    card.style.setProperty('--mx', x + '%');
+    card.style.setProperty('--my', y + '%');
+  }
+
+  // FAQ toggle
+  function toggleFaq(item) {
+    const wasOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+    if (!wasOpen) item.classList.add('open');
+  }
+
+  // Intersection Observer for animations
+  const observerOptions = { threshold: 0.1 };
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, observerOptions);
+
+  document.querySelectorAll('.feat-card, .step-card, .price-card, .vs-row').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(20px)';
+    el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+    observer.observe(el);
+  });
+</script>
+</body>
+</html>
